@@ -1,0 +1,37 @@
+# Install once: uv run pre-commit install
+# Run everything: uv run pre-commit run --all-files
+exclude: ^third_party/
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: [--maxkb=1024]
+      - id: detect-private-key
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.17.4
+    hooks:
+      - id: ruff-check
+        args: [--fix]
+      - id: ruff-format
+
+  - repo: local
+    hooks:
+      - id: uv-lock
+        name: uv.lock is up to date
+        entry: uv lock --check
+        language: system
+        files: (^|/)(pyproject\.toml|uv\.lock)$
+        pass_filenames: false
+      - id: mypy
+        name: mypy (strict, whole workspace)
+        entry: uv run --frozen mypy
+        language: system
+        types_or: [python, pyi, toml]
+        pass_filenames: false

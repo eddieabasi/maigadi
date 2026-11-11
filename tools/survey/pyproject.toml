@@ -1,0 +1,10 @@
+[project]
+name = "maigadi-survey"
+version = "0.1.0"
+description = "maigadi-survey: pre-sale site survey CLI that probes DVRs, NVRs and RTSP streams."
+requires-python = ">=3.13"
+dependencies = []
+
+[build-system]
+requires = ["uv_build>=0.11.0,<0.14"]
+build-backend = "uv_build"

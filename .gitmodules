@@ -1,0 +1,4 @@
+[submodule "third_party/vss"]
+	path = third_party/vss
+	url = https://github.com/NVIDIA-AI-Blueprints/video-search-and-summarization.git
+	shallow = true

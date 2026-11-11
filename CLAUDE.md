@@ -10,7 +10,13 @@ On-prem AI watchman for existing CCTV.
 
 1. Pick **one task ID** from `spec/BUILD_PLAN.md` (e.g. `T1.8a`). Read its row, its dependencies, and the spec sections it touches.
 2. Write or extend tests first. Use fakes for upstreams (VSS APIs, MQTT, WhatsApp, LLM).
-3. End with: tests green (`uv run pytest`), `uv run ruff check`, `uv run mypy`, and a commit message prefixed with the task ID (`T1.8a: …`).
+3. End with all of these green, then commit with the task ID as prefix (`T1.8a: …`):
+   - `uv run pytest`
+   - `uv run ruff check`
+   - `uv run ruff format --check`
+   - `uv run mypy`
+
+   `uv run pre-commit run --all-files` runs everything except pytest. CI (`.github/workflows/ci.yml`) runs pre-commit plus pytest on every push.
 
 ## Invariants (never break these)
 
@@ -34,6 +40,15 @@ On-prem AI watchman for existing CCTV.
 - LLM providers sit behind `edge/agent/providers/`. Default model `claude-opus-5-5` (config, not hardcoded). Sovereign mode uses an OpenAI-compatible local NIM.
 - Config is versioned YAML: rule packs in `shared/rule_packs/`, policy packs in `shared/policy_packs/`.
 - Layout: `edge/` (box services), `cloud/` (relay, channels, control plane, gateway, fleet), `shared/`, `tools/` (survey, eval, chaos), `third_party/vss` (submodule @ `v3.3.0`).
+- **Packages:** `<area>/<name>/` → distribution `maigadi-<name>` → module `maigadi_<name>`, in a `src/` layout with `py.typed`.
+  - Root `pyproject.toml` is a virtual project that depends on every member.
+  - A new package must be added to workspace `members`, root `dependencies`, `[tool.uv.sources]` and `[tool.mypy].mypy_path`.
+  - `tests/test_workspace_layout.py` enforces all of this.
+- **Tests:**
+  - Unit tests go in `<package>/tests/`, with **no** `__init__.py`. Same file names across packages are fine: pytest uses importlib mode, and mypy resolves tests from the repo root.
+  - Root `tests/` is for cross-package tests.
+  - `filterwarnings = error`: fix warnings, don't silence them.
+- **Lint rules worth knowing:** ruff `DTZ` (naive datetimes are errors, consistent with the store-UTC invariant), `T20` (no `print`; use logging) and `S` (bandit).
 
 ## Working with VSS (v3.3.0)
 

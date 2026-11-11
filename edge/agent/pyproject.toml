@@ -1,0 +1,10 @@
+[project]
+name = "maigadi-agent"
+version = "0.1.0"
+description = "Watchman agent: provider-agnostic tool-calling loop, budgets and the egress filter."
+requires-python = ">=3.13"
+dependencies = []
+
+[build-system]
+requires = ["uv_build>=0.11.0,<0.14"]
+build-backend = "uv_build"

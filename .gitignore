@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+build/
+dist/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.hypothesis/
+.coverage
+.coverage.*
+htmlcov/
+
+# Secrets and local config: never commit (see CLAUDE.md invariants)
+.env
+.env.*
+*-overrides.env
+*.pem
+*.key
+*.p12
+nemoclaw.env
+
+# Footage and recordings must never be committed (privacy). Eval corpora live
+# on the encrypted lab server, not in git (spec/EVAL_PLAN.md §2.3).
+*.mp4
+*.mkv
+*.avi
+*.mov
+*.h264
+*.h265
+
+# Local data
+/data/
+
+# Editors and OS
+.idea/
+.vscode/
+.DS_Store

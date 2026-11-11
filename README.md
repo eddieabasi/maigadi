@@ -41,3 +41,22 @@
 | [VSS baseline](spec/VSS_BASELINE.md) | What NVIDIA VSS 3.3.0 gives us (verified) vs what we build |
 
 Built on the [NVIDIA AI Blueprint for Video Search and Summarization](https://github.com/NVIDIA-AI-Blueprints/video-search-and-summarization) (v3.3.0).
+
+## Development
+
+Requires [uv](https://docs.astral.sh/uv/) ≥ 0.11.32 and Python 3.13. uv installs Python if it's missing.
+
+```bash
+uv sync                          # install the whole workspace + dev tools
+uv run pre-commit install        # hygiene, ruff, lock check, mypy on every commit
+uv run pytest                    # all tests
+uv run ruff check && uv run ruff format --check && uv run mypy
+```
+
+**NVIDIA VSS** (v3.3.0) is a submodule in `third_party/vss`, used for deploy configs, protobuf schemas and skills. It isn't needed for tests or CI:
+
+```bash
+GIT_LFS_SKIP_SMUDGE=1 git submodule update --init --depth 1 third_party/vss
+```
+
+The workspace has 18 packages under `shared/`, `edge/`, `cloud/` and `tools/`. See the layout in [spec/BUILD_PLAN.md](spec/BUILD_PLAN.md#proposed-repo-structure).

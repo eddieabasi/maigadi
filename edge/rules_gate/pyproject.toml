@@ -1,0 +1,10 @@
+[project]
+name = "maigadi-rules-gate"
+version = "0.1.0"
+description = "Rules gate between Behavior Analytics and Alert Bridge: armed schedules, cooldown, dwell and overrides."
+requires-python = ">=3.13"
+dependencies = []
+
+[build-system]
+requires = ["uv_build>=0.11.0,<0.14"]
+build-backend = "uv_build"

@@ -1,0 +1,161 @@
+# maigadi uv workspace root.
+#
+# The root is a virtual project (never built). It depends on every workspace
+# member, so `uv sync` / `uv run` always install the whole workspace.
+# Adding a package: create <area>/<name>/ (see spec/BUILD_PLAN.md layout), then
+# register it in [tool.uv.workspace].members, [project].dependencies,
+# [tool.uv.sources] and [tool.mypy].mypy_path. tests/test_workspace_layout.py
+# fails until all four are in place.
+
+[project]
+name = "maigadi"
+version = "0.1.0"
+description = "On-prem AI watchman for existing CCTV. Built on NVIDIA VSS."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "maigadi-schemas",
+    "maigadi-node",
+    "maigadi-indexer",
+    "maigadi-rules-gate",
+    "maigadi-visual-memory",
+    "maigadi-site-mcp",
+    "maigadi-agent",
+    "maigadi-summarizer",
+    "maigadi-notifier",
+    "maigadi-dashboard",
+    "maigadi-relay",
+    "maigadi-channels",
+    "maigadi-control-plane",
+    "maigadi-llm-gateway",
+    "maigadi-fleet",
+    "maigadi-survey",
+    "maigadi-eval",
+    "maigadi-chaos",
+]
+
+[dependency-groups]
+dev = [
+    "mypy>=2.4.1",
+    "pre-commit>=4.7.0",
+    "pytest>=9.2.0",
+    "ruff>=0.17.4",
+]
+
+[tool.uv]
+package = false
+required-version = ">=0.11.32"
+
+[tool.uv.workspace]
+members = [
+    "shared/schemas",
+    "edge/node",
+    "edge/indexer",
+    "edge/rules_gate",
+    "edge/visual_memory",
+    "edge/site_mcp",
+    "edge/agent",
+    "edge/summarizer",
+    "edge/notifier",
+    "edge/dashboard",
+    "cloud/relay",
+    "cloud/channels",
+    "cloud/control_plane",
+    "cloud/llm_gateway",
+    "cloud/fleet",
+    "tools/survey",
+    "tools/eval",
+    "tools/chaos",
+]
+
+[tool.uv.sources]
+maigadi-schemas = { workspace = true }
+maigadi-node = { workspace = true }
+maigadi-indexer = { workspace = true }
+maigadi-rules-gate = { workspace = true }
+maigadi-visual-memory = { workspace = true }
+maigadi-site-mcp = { workspace = true }
+maigadi-agent = { workspace = true }
+maigadi-summarizer = { workspace = true }
+maigadi-notifier = { workspace = true }
+maigadi-dashboard = { workspace = true }
+maigadi-relay = { workspace = true }
+maigadi-channels = { workspace = true }
+maigadi-control-plane = { workspace = true }
+maigadi-llm-gateway = { workspace = true }
+maigadi-fleet = { workspace = true }
+maigadi-survey = { workspace = true }
+maigadi-eval = { workspace = true }
+maigadi-chaos = { workspace = true }
+
+# ---------------------------------------------------------------- ruff
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+extend-exclude = ["third_party"]
+src = ["shared/*/src", "edge/*/src", "cloud/*/src", "tools/*/src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E", "W",   # pycodestyle
+    "F",        # pyflakes
+    "I",        # isort
+    "N",        # pep8-naming
+    "UP",       # pyupgrade
+    "B",        # bugbear
+    "C4",       # comprehensions
+    "SIM",      # simplify
+    "PTH",      # pathlib over os.path
+    "DTZ",      # timezone-aware datetimes only (invariant: store UTC)
+    "T20",      # no print(); use logging
+    "S",        # bandit security checks
+    "ASYNC",    # asyncio pitfalls
+    "PT",       # pytest style
+    "RUF",      # ruff-specific
+]
+
+[tool.ruff.lint.per-file-ignores]
+"**/tests/**" = ["S101"]  # assert is how pytest works
+"tests/**" = ["S101"]
+
+# ---------------------------------------------------------------- mypy
+[tool.mypy]
+python_version = "3.13"
+strict = true
+warn_unreachable = true
+enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]
+files = ["shared", "edge", "cloud", "tools", "tests"]
+# Module names: src files resolve against their package's src dir; tests
+# resolve against the repo root (e.g. edge.node.tests.test_x), so two packages
+# can each have tests/test_config.py without a duplicate-module error.
+explicit_package_bases = true
+mypy_path = [
+    "$MYPY_CONFIG_FILE_DIR/shared/schemas/src",
+    "$MYPY_CONFIG_FILE_DIR/edge/node/src",
+    "$MYPY_CONFIG_FILE_DIR/edge/indexer/src",
+    "$MYPY_CONFIG_FILE_DIR/edge/rules_gate/src",
+    "$MYPY_CONFIG_FILE_DIR/edge/visual_memory/src",
+    "$MYPY_CONFIG_FILE_DIR/edge/site_mcp/src",
+    "$MYPY_CONFIG_FILE_DIR/edge/agent/src",
+    "$MYPY_CONFIG_FILE_DIR/edge/summarizer/src",
+    "$MYPY_CONFIG_FILE_DIR/edge/notifier/src",
+    "$MYPY_CONFIG_FILE_DIR/edge/dashboard/src",
+    "$MYPY_CONFIG_FILE_DIR/cloud/relay/src",
+    "$MYPY_CONFIG_FILE_DIR/cloud/channels/src",
+    "$MYPY_CONFIG_FILE_DIR/cloud/control_plane/src",
+    "$MYPY_CONFIG_FILE_DIR/cloud/llm_gateway/src",
+    "$MYPY_CONFIG_FILE_DIR/cloud/fleet/src",
+    "$MYPY_CONFIG_FILE_DIR/tools/survey/src",
+    "$MYPY_CONFIG_FILE_DIR/tools/eval/src",
+    "$MYPY_CONFIG_FILE_DIR/tools/chaos/src",
+    "$MYPY_CONFIG_FILE_DIR",
+]
+
+# ---------------------------------------------------------------- pytest
+[tool.pytest.ini_options]
+minversion = "9.0"
+testpaths = ["shared", "edge", "cloud", "tools", "tests"]
+# importlib mode: per-package tests/ dirs (no __init__.py) may reuse file names.
+addopts = ["-ra", "--strict-markers", "--strict-config", "--import-mode=importlib"]
+xfail_strict = true
+filterwarnings = ["error"]
