@@ -1,0 +1,456 @@
+{
+  "$defs": {
+    "CameraConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "camera_id": {
+          "pattern": "^[a-z0-9][a-z0-9-]{0,62}$",
+          "title": "Camera Id",
+          "type": "string"
+        },
+        "enabled": {
+          "default": true,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "name": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "camera_id",
+        "name"
+      ],
+      "title": "CameraConfig",
+      "type": "object"
+    },
+    "LlmMode": {
+      "description": "Hybrid: cloud LLM sees text only. Sovereign: everything on the box.",
+      "enum": [
+        "hybrid",
+        "sovereign"
+      ],
+      "title": "LlmMode",
+      "type": "string"
+    },
+    "OpeningWindow": {
+      "additionalProperties": false,
+      "properties": {
+        "close": {
+          "format": "time",
+          "title": "Close",
+          "type": "string"
+        },
+        "days": {
+          "items": {
+            "$ref": "#/$defs/Weekday"
+          },
+          "maxItems": 7,
+          "minItems": 1,
+          "title": "Days",
+          "type": "array"
+        },
+        "open": {
+          "format": "time",
+          "title": "Open",
+          "type": "string"
+        }
+      },
+      "required": [
+        "days",
+        "open",
+        "close"
+      ],
+      "title": "OpeningWindow",
+      "type": "object"
+    },
+    "Point": {
+      "additionalProperties": false,
+      "description": "Point in normalised frame coordinates (0..1, origin top-left).",
+      "properties": {
+        "x": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "X",
+          "type": "number"
+        },
+        "y": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Y",
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "y"
+      ],
+      "title": "Point",
+      "type": "object"
+    },
+    "Recipient": {
+      "additionalProperties": false,
+      "properties": {
+        "alerts": {
+          "default": true,
+          "title": "Alerts",
+          "type": "boolean"
+        },
+        "role": {
+          "$ref": "#/$defs/Role"
+        },
+        "summaries": {
+          "default": true,
+          "title": "Summaries",
+          "type": "boolean"
+        },
+        "user": {
+          "$ref": "#/$defs/UserRef"
+        }
+      },
+      "required": [
+        "user",
+        "role"
+      ],
+      "title": "Recipient",
+      "type": "object"
+    },
+    "Role": {
+      "description": "User roles (spec/SECURITY_AND_PRIVACY.md §A3).",
+      "enum": [
+        "owner",
+        "manager",
+        "viewer",
+        "installer",
+        "support"
+      ],
+      "title": "Role",
+      "type": "string"
+    },
+    "Schedule": {
+      "additionalProperties": false,
+      "description": "When the site is open, its shifts, and which zones are armed.\n\n``armed_zone_ids`` are armed whenever the site is closed (outside opening\nhours and on holidays). ``always_armed_zone_ids`` are armed around the clock.",
+      "properties": {
+        "always_armed_zone_ids": {
+          "items": {
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,62}$",
+            "type": "string"
+          },
+          "title": "Always Armed Zone Ids",
+          "type": "array"
+        },
+        "armed_zone_ids": {
+          "items": {
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,62}$",
+            "type": "string"
+          },
+          "title": "Armed Zone Ids",
+          "type": "array"
+        },
+        "holidays": {
+          "items": {
+            "format": "date",
+            "type": "string"
+          },
+          "maxItems": 100,
+          "title": "Holidays",
+          "type": "array"
+        },
+        "open_24h": {
+          "default": false,
+          "title": "Open 24H",
+          "type": "boolean"
+        },
+        "opening_hours": {
+          "items": {
+            "$ref": "#/$defs/OpeningWindow"
+          },
+          "maxItems": 14,
+          "title": "Opening Hours",
+          "type": "array"
+        },
+        "shifts": {
+          "items": {
+            "$ref": "#/$defs/Shift"
+          },
+          "maxItems": 6,
+          "minItems": 1,
+          "title": "Shifts",
+          "type": "array"
+        }
+      },
+      "required": [
+        "shifts"
+      ],
+      "title": "Schedule",
+      "type": "object"
+    },
+    "Shift": {
+      "additionalProperties": false,
+      "properties": {
+        "end": {
+          "format": "time",
+          "title": "End",
+          "type": "string"
+        },
+        "name": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,62}$",
+          "title": "Name",
+          "type": "string"
+        },
+        "start": {
+          "format": "time",
+          "title": "Start",
+          "type": "string"
+        }
+      },
+      "required": [
+        "start",
+        "end",
+        "name"
+      ],
+      "title": "Shift",
+      "type": "object"
+    },
+    "TripwireConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "camera_id": {
+          "pattern": "^[a-z0-9][a-z0-9-]{0,62}$",
+          "title": "Camera Id",
+          "type": "string"
+        },
+        "line": {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "$ref": "#/$defs/Point"
+            },
+            {
+              "$ref": "#/$defs/Point"
+            }
+          ],
+          "title": "Line",
+          "type": "array"
+        },
+        "name": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "tripwire_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,62}$",
+          "title": "Tripwire Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "tripwire_id",
+        "name",
+        "camera_id",
+        "line"
+      ],
+      "title": "TripwireConfig",
+      "type": "object"
+    },
+    "UserRef": {
+      "additionalProperties": false,
+      "properties": {
+        "user_id": {
+          "pattern": "^[a-z0-9][a-z0-9-]{0,62}$",
+          "title": "User Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "user_id"
+      ],
+      "title": "UserRef",
+      "type": "object"
+    },
+    "Weekday": {
+      "enum": [
+        "mon",
+        "tue",
+        "wed",
+        "thu",
+        "fri",
+        "sat",
+        "sun"
+      ],
+      "title": "Weekday",
+      "type": "string"
+    },
+    "ZoneConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "camera_id": {
+          "pattern": "^[a-z0-9][a-z0-9-]{0,62}$",
+          "title": "Camera Id",
+          "type": "string"
+        },
+        "group": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z0-9][a-z0-9_-]{0,62}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Group"
+        },
+        "name": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "polygon": {
+          "items": {
+            "$ref": "#/$defs/Point"
+          },
+          "maxItems": 32,
+          "minItems": 3,
+          "title": "Polygon",
+          "type": "array"
+        },
+        "template": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z0-9][a-z0-9_-]{0,62}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Template"
+        },
+        "zone_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,62}$",
+          "title": "Zone Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "zone_id",
+        "name",
+        "camera_id",
+        "polygon"
+      ],
+      "title": "ZoneConfig",
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "cameras": {
+      "items": {
+        "$ref": "#/$defs/CameraConfig"
+      },
+      "minItems": 1,
+      "title": "Cameras",
+      "type": "array"
+    },
+    "config_version": {
+      "exclusiveMinimum": 0,
+      "title": "Config Version",
+      "type": "integer"
+    },
+    "country": {
+      "pattern": "^[A-Z]{2}$",
+      "title": "Country",
+      "type": "string"
+    },
+    "data_region": {
+      "pattern": "^[a-z0-9][a-z0-9-]{0,62}$",
+      "title": "Data Region",
+      "type": "string"
+    },
+    "llm_mode": {
+      "$ref": "#/$defs/LlmMode"
+    },
+    "name": {
+      "maxLength": 64,
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+    },
+    "policy_pack": {
+      "pattern": "^[a-z0-9][a-z0-9-]{0,62}@\\d+\\.\\d+\\.\\d+$",
+      "title": "Policy Pack",
+      "type": "string"
+    },
+    "recipients": {
+      "items": {
+        "$ref": "#/$defs/Recipient"
+      },
+      "title": "Recipients",
+      "type": "array"
+    },
+    "rule_pack": {
+      "pattern": "^[a-z0-9][a-z0-9-]{0,62}@\\d+\\.\\d+\\.\\d+$",
+      "title": "Rule Pack",
+      "type": "string"
+    },
+    "schedule": {
+      "$ref": "#/$defs/Schedule"
+    },
+    "site_id": {
+      "pattern": "^[a-z0-9][a-z0-9-]{0,62}$",
+      "title": "Site Id",
+      "type": "string"
+    },
+    "tenant_id": {
+      "pattern": "^[a-z0-9][a-z0-9-]{0,62}$",
+      "title": "Tenant Id",
+      "type": "string"
+    },
+    "timezone": {
+      "maxLength": 64,
+      "minLength": 1,
+      "title": "Timezone",
+      "type": "string"
+    },
+    "tripwires": {
+      "items": {
+        "$ref": "#/$defs/TripwireConfig"
+      },
+      "title": "Tripwires",
+      "type": "array"
+    },
+    "zones": {
+      "items": {
+        "$ref": "#/$defs/ZoneConfig"
+      },
+      "title": "Zones",
+      "type": "array"
+    }
+  },
+  "required": [
+    "site_id",
+    "tenant_id",
+    "name",
+    "country",
+    "timezone",
+    "data_region",
+    "config_version",
+    "llm_mode",
+    "policy_pack",
+    "rule_pack",
+    "cameras",
+    "schedule"
+  ],
+  "title": "SiteConfig",
+  "type": "object"
+}

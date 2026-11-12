@@ -1,0 +1,258 @@
+{
+  "$defs": {
+    "NetworkLink": {
+      "enum": [
+        "ethernet",
+        "lte",
+        "none"
+      ],
+      "title": "NetworkLink",
+      "type": "string"
+    },
+    "NetworkState": {
+      "additionalProperties": false,
+      "properties": {
+        "end_ts": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "End Ts"
+        },
+        "kind": {
+          "const": "network",
+          "default": "network",
+          "title": "Kind",
+          "type": "string"
+        },
+        "link": {
+          "$ref": "#/$defs/NetworkLink"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "site_id": {
+          "pattern": "^[a-z0-9][a-z0-9-]{0,62}$",
+          "title": "Site Id",
+          "type": "string"
+        },
+        "start_ts": {
+          "format": "date-time",
+          "title": "Start Ts",
+          "type": "string"
+        },
+        "state": {
+          "$ref": "#/$defs/NetworkStateName"
+        }
+      },
+      "required": [
+        "site_id",
+        "start_ts",
+        "state",
+        "link"
+      ],
+      "title": "NetworkState",
+      "type": "object"
+    },
+    "NetworkStateName": {
+      "enum": [
+        "online",
+        "offline"
+      ],
+      "title": "NetworkStateName",
+      "type": "string"
+    },
+    "PipelineState": {
+      "additionalProperties": false,
+      "properties": {
+        "end_ts": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "End Ts"
+        },
+        "kind": {
+          "const": "pipeline",
+          "default": "pipeline",
+          "title": "Kind",
+          "type": "string"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "site_id": {
+          "pattern": "^[a-z0-9][a-z0-9-]{0,62}$",
+          "title": "Site Id",
+          "type": "string"
+        },
+        "start_ts": {
+          "format": "date-time",
+          "title": "Start Ts",
+          "type": "string"
+        },
+        "state": {
+          "$ref": "#/$defs/PipelineStateName"
+        }
+      },
+      "required": [
+        "site_id",
+        "start_ts",
+        "state"
+      ],
+      "title": "PipelineState",
+      "type": "object"
+    },
+    "PipelineStateName": {
+      "enum": [
+        "ok",
+        "warming_up",
+        "degraded",
+        "safe_mode",
+        "down"
+      ],
+      "title": "PipelineStateName",
+      "type": "string"
+    },
+    "PowerState": {
+      "additionalProperties": false,
+      "properties": {
+        "battery_soc_pct": {
+          "anyOf": [
+            {
+              "maximum": 100.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Battery Soc Pct"
+        },
+        "end_ts": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "End Ts"
+        },
+        "kind": {
+          "const": "power",
+          "default": "power",
+          "title": "Kind",
+          "type": "string"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "site_id": {
+          "pattern": "^[a-z0-9][a-z0-9-]{0,62}$",
+          "title": "Site Id",
+          "type": "string"
+        },
+        "start_ts": {
+          "format": "date-time",
+          "title": "Start Ts",
+          "type": "string"
+        },
+        "state": {
+          "$ref": "#/$defs/PowerStateName"
+        }
+      },
+      "required": [
+        "site_id",
+        "start_ts",
+        "state"
+      ],
+      "title": "PowerState",
+      "type": "object"
+    },
+    "PowerStateName": {
+      "description": "States of the power state machine (spec/RELIABILITY.md §2.1).",
+      "enum": [
+        "mains",
+        "on_battery",
+        "low_battery",
+        "critical",
+        "shutting_down",
+        "off",
+        "booting",
+        "warming_up",
+        "safe_mode"
+      ],
+      "title": "PowerStateName",
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "discriminator": {
+    "mapping": {
+      "network": "#/$defs/NetworkState",
+      "pipeline": "#/$defs/PipelineState",
+      "power": "#/$defs/PowerState"
+    },
+    "propertyName": "kind"
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/PowerState"
+    },
+    {
+      "$ref": "#/$defs/NetworkState"
+    },
+    {
+      "$ref": "#/$defs/PipelineState"
+    }
+  ],
+  "title": "SystemState"
+}

@@ -1,0 +1,104 @@
+{
+  "$defs": {
+    "Channel": {
+      "enum": [
+        "whatsapp",
+        "sms",
+        "telegram",
+        "slack",
+        "teams",
+        "fake"
+      ],
+      "title": "Channel",
+      "type": "string"
+    },
+    "Role": {
+      "description": "User roles (spec/SECURITY_AND_PRIVACY.md §A3).",
+      "enum": [
+        "owner",
+        "manager",
+        "viewer",
+        "installer",
+        "support"
+      ],
+      "title": "Role",
+      "type": "string"
+    },
+    "UserRef": {
+      "additionalProperties": false,
+      "properties": {
+        "user_id": {
+          "pattern": "^[a-z0-9][a-z0-9-]{0,62}$",
+          "title": "User Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "user_id"
+      ],
+      "title": "UserRef",
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "A user's message delivered to the box (MQTT ``down/inbox``). The relay\nhas already resolved and authorised the sender.",
+  "properties": {
+    "channel": {
+      "$ref": "#/$defs/Channel"
+    },
+    "message_id": {
+      "maxLength": 256,
+      "minLength": 1,
+      "title": "Message Id",
+      "type": "string"
+    },
+    "received_at": {
+      "format": "date-time",
+      "title": "Received At",
+      "type": "string"
+    },
+    "reply_to_message_id": {
+      "anyOf": [
+        {
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Reply To Message Id"
+    },
+    "role": {
+      "$ref": "#/$defs/Role"
+    },
+    "site_id": {
+      "pattern": "^[a-z0-9][a-z0-9-]{0,62}$",
+      "title": "Site Id",
+      "type": "string"
+    },
+    "text": {
+      "maxLength": 4096,
+      "minLength": 1,
+      "title": "Text",
+      "type": "string"
+    },
+    "user": {
+      "$ref": "#/$defs/UserRef"
+    }
+  },
+  "required": [
+    "message_id",
+    "site_id",
+    "user",
+    "role",
+    "channel",
+    "text",
+    "received_at"
+  ],
+  "title": "InboxMessage",
+  "type": "object"
+}

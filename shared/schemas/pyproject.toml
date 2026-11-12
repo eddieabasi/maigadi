@@ -3,7 +3,13 @@ name = "maigadi-schemas"
 version = "0.1.0"
 description = "Canonical pydantic v2 models shared by edge and cloud: events, captions, coverage, messages, site/rule/policy configs."
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "pydantic>=2.14.3,<3",
+    "tzdata>=2026.6",  # IANA zones even in slim containers (offline-first)
+]
+
+[project.scripts]
+maigadi-schemas = "maigadi_schemas.export:main"
 
 [build-system]
 requires = ["uv_build>=0.11.0,<0.14"]

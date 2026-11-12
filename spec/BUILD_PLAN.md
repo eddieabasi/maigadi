@@ -40,7 +40,7 @@ Status: draft v0.1 (2026-11-07). The build is done with **Claude Code**. Each ta
 
 | ID | Task | Size | Depends | Acceptance |
 |---|---|---|---|---|
-| T1.1 | `shared/schemas`: pydantic v2 models for Event, Caption, Coverage, SystemState, OutboundMessage, InboundEvent, SiteConfig, RulePack, PolicyPack; JSON Schema export | S | T0.1 | Round-trip tests; schema files generated |
+| T1.1 | `shared/schemas`: pydantic v2 models for Event, Caption, Coverage, SystemState, OutboundMessage, InboundEvent, InboxMessage, SiteConfig, RulePack, PolicyPack; JSON Schema export | S | T0.1 | Round-trip tests; schema files generated |
 | T1.2 | On-box Postgres 16 + pgvector service; Alembic migrations for every table in ARCHITECTURE §3.5; FTS + HNSW indexes | M | T1.1 | Migrations up and down; seed fixtures load |
 | T1.3 | Indexer: Kafka consumers (Behavior Analytics events/incidents, `mdx-vlm-incidents`) → Postgres; protobuf decode via `third_party/vss/libs/nvschema`; idempotent upserts; track aggregation | M | T1.2, T0.3 | Replaying a recorded topic twice yields identical rows |
 | T1.4 | Coverage monitor: VIOS stream status + per-camera frame-rate watchdog → `coverage` intervals | M | T1.2 | Unplug-camera test produces a correct interval |

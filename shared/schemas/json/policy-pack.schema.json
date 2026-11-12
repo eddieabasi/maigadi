@@ -1,0 +1,339 @@
+{
+  "$defs": {
+    "ClipEgress": {
+      "additionalProperties": false,
+      "properties": {
+        "max_per_user_per_day": {
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Max Per User Per Day",
+          "type": "integer"
+        },
+        "max_seconds": {
+          "exclusiveMinimum": 0,
+          "maximum": 60,
+          "title": "Max Seconds",
+          "type": "integer"
+        },
+        "require_pin": {
+          "const": true,
+          "title": "Require Pin",
+          "type": "boolean"
+        },
+        "roles": {
+          "items": {
+            "$ref": "#/$defs/Role"
+          },
+          "minItems": 1,
+          "title": "Roles",
+          "type": "array"
+        },
+        "watermark": {
+          "default": true,
+          "title": "Watermark",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "roles",
+        "require_pin",
+        "max_seconds",
+        "max_per_user_per_day"
+      ],
+      "title": "ClipEgress",
+      "type": "object"
+    },
+    "CommissioningRequirements": {
+      "additionalProperties": false,
+      "properties": {
+        "dpia": {
+          "$ref": "#/$defs/Requirement"
+        },
+        "lia": {
+          "$ref": "#/$defs/Requirement"
+        },
+        "staff_notice": {
+          "$ref": "#/$defs/Requirement"
+        }
+      },
+      "required": [
+        "dpia",
+        "lia",
+        "staff_notice"
+      ],
+      "title": "CommissioningRequirements",
+      "type": "object"
+    },
+    "Dsar": {
+      "additionalProperties": false,
+      "properties": {
+        "response_days": {
+          "exclusiveMinimum": 0,
+          "maximum": 365,
+          "title": "Response Days",
+          "type": "integer"
+        },
+        "third_party_blur": {
+          "title": "Third Party Blur",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "response_days",
+        "third_party_blur"
+      ],
+      "title": "Dsar",
+      "type": "object"
+    },
+    "Features": {
+      "additionalProperties": false,
+      "properties": {
+        "audio": {
+          "const": "forbidden",
+          "title": "Audio",
+          "type": "string"
+        },
+        "emotion_or_behaviour_scoring": {
+          "const": "forbidden",
+          "title": "Emotion Or Behaviour Scoring",
+          "type": "string"
+        },
+        "face_recognition": {
+          "const": "forbidden",
+          "title": "Face Recognition",
+          "type": "string"
+        },
+        "person_reid": {
+          "const": "forbidden",
+          "title": "Person Reid",
+          "type": "string"
+        },
+        "plate_recognition": {
+          "const": "forbidden",
+          "title": "Plate Recognition",
+          "type": "string"
+        },
+        "staff_presence_rules": {
+          "$ref": "#/$defs/OptIn"
+        }
+      },
+      "required": [
+        "face_recognition",
+        "person_reid",
+        "plate_recognition",
+        "audio",
+        "emotion_or_behaviour_scoring",
+        "staff_presence_rules"
+      ],
+      "title": "Features",
+      "type": "object"
+    },
+    "LegalReview": {
+      "enum": [
+        "pending",
+        "approved"
+      ],
+      "title": "LegalReview",
+      "type": "string"
+    },
+    "LlmMode": {
+      "description": "Hybrid: cloud LLM sees text only. Sovereign: everything on the box.",
+      "enum": [
+        "hybrid",
+        "sovereign"
+      ],
+      "title": "LlmMode",
+      "type": "string"
+    },
+    "LlmPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_modes": {
+          "items": {
+            "$ref": "#/$defs/LlmMode"
+          },
+          "minItems": 1,
+          "title": "Allowed Modes",
+          "type": "array"
+        },
+        "inference_geo": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,62}$",
+          "title": "Inference Geo",
+          "type": "string"
+        },
+        "provider_zdr_required": {
+          "title": "Provider Zdr Required",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "allowed_modes",
+        "inference_geo",
+        "provider_zdr_required"
+      ],
+      "title": "LlmPolicy",
+      "type": "object"
+    },
+    "OptIn": {
+      "enum": [
+        "forbidden",
+        "allowed_opt_in"
+      ],
+      "title": "OptIn",
+      "type": "string"
+    },
+    "Requirement": {
+      "enum": [
+        "required",
+        "recommended",
+        "not_required"
+      ],
+      "title": "Requirement",
+      "type": "string"
+    },
+    "Retention": {
+      "additionalProperties": false,
+      "properties": {
+        "audit_days": {
+          "exclusiveMinimum": 0,
+          "maximum": 3650,
+          "title": "Audit Days",
+          "type": "integer"
+        },
+        "continuous_recording_days": {
+          "exclusiveMinimum": 0,
+          "maximum": 3650,
+          "title": "Continuous Recording Days",
+          "type": "integer"
+        },
+        "conversations_days": {
+          "exclusiveMinimum": 0,
+          "maximum": 3650,
+          "title": "Conversations Days",
+          "type": "integer"
+        },
+        "event_clips_days": {
+          "exclusiveMinimum": 0,
+          "maximum": 3650,
+          "title": "Event Clips Days",
+          "type": "integer"
+        },
+        "events_and_captions_days": {
+          "exclusiveMinimum": 0,
+          "maximum": 3650,
+          "title": "Events And Captions Days",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "continuous_recording_days",
+        "event_clips_days",
+        "events_and_captions_days",
+        "conversations_days",
+        "audit_days"
+      ],
+      "title": "Retention",
+      "type": "object"
+    },
+    "Role": {
+      "description": "User roles (spec/SECURITY_AND_PRIVACY.md §A3).",
+      "enum": [
+        "owner",
+        "manager",
+        "viewer",
+        "installer",
+        "support"
+      ],
+      "title": "Role",
+      "type": "string"
+    },
+    "Signage": {
+      "additionalProperties": false,
+      "properties": {
+        "languages": {
+          "items": {
+            "pattern": "^[a-z]{2,3}$",
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Languages",
+          "type": "array"
+        },
+        "photo_required": {
+          "title": "Photo Required",
+          "type": "boolean"
+        },
+        "template": {
+          "pattern": "^[a-z0-9][a-z0-9-]{0,62}$",
+          "title": "Template",
+          "type": "string"
+        }
+      },
+      "required": [
+        "template",
+        "languages",
+        "photo_required"
+      ],
+      "title": "Signage",
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "clip_egress": {
+      "$ref": "#/$defs/ClipEgress"
+    },
+    "commissioning_requirements": {
+      "$ref": "#/$defs/CommissioningRequirements"
+    },
+    "dsar": {
+      "$ref": "#/$defs/Dsar"
+    },
+    "features": {
+      "$ref": "#/$defs/Features"
+    },
+    "id": {
+      "pattern": "^[a-z0-9][a-z0-9-]{0,62}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "jurisdiction": {
+      "pattern": "^[A-Z]{2}(-[A-Z0-9]{1,3})?$",
+      "title": "Jurisdiction",
+      "type": "string"
+    },
+    "legal_review": {
+      "$ref": "#/$defs/LegalReview"
+    },
+    "llm": {
+      "$ref": "#/$defs/LlmPolicy"
+    },
+    "retention": {
+      "$ref": "#/$defs/Retention"
+    },
+    "signage": {
+      "$ref": "#/$defs/Signage"
+    },
+    "version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "title": "Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "version",
+    "jurisdiction",
+    "legal_review",
+    "features",
+    "llm",
+    "retention",
+    "clip_egress",
+    "signage",
+    "commissioning_requirements",
+    "dsar"
+  ],
+  "title": "PolicyPack",
+  "type": "object"
+}

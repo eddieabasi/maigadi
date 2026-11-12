@@ -1,0 +1,270 @@
+{
+  "$defs": {
+    "AlertState": {
+      "enum": [
+        "none",
+        "suppressed",
+        "verifying",
+        "rejected",
+        "held",
+        "queued",
+        "delivered"
+      ],
+      "title": "AlertState",
+      "type": "string"
+    },
+    "EventMedia": {
+      "additionalProperties": false,
+      "properties": {
+        "clip_local": {
+          "anyOf": [
+            {
+              "pattern": "^vios://\\S+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Clip Local"
+        },
+        "thumb_local": {
+          "anyOf": [
+            {
+              "pattern": "^vios://\\S+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Thumb Local"
+        }
+      },
+      "title": "EventMedia",
+      "type": "object"
+    },
+    "EventSource": {
+      "enum": [
+        "behavior_analytics",
+        "rules_gate",
+        "alert_bridge",
+        "coverage_monitor",
+        "visual_memory"
+      ],
+      "title": "EventSource",
+      "type": "string"
+    },
+    "JsonValue": {},
+    "ObjectClass": {
+      "description": "Object classes the box tracks (spec/ARCHITECTURE.md §3.2). Never identities.",
+      "enum": [
+        "person",
+        "car",
+        "truck",
+        "bus",
+        "motorcycle",
+        "bicycle"
+      ],
+      "title": "ObjectClass",
+      "type": "string"
+    },
+    "Verdict": {
+      "description": "VLM verification outcome. VSS Alert Bridge's ``verification-failed`` maps\nto ``verification_failed``.",
+      "enum": [
+        "confirmed",
+        "rejected",
+        "verification_failed"
+      ],
+      "title": "Verdict",
+      "type": "string"
+    },
+    "VlmResult": {
+      "additionalProperties": false,
+      "description": "Output of a VLM look at an event. ``text`` is untrusted model output:\ntreat it as data, never as instructions.",
+      "properties": {
+        "latency_ms": {
+          "minimum": 0,
+          "title": "Latency Ms",
+          "type": "integer"
+        },
+        "model": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Model",
+          "type": "string"
+        },
+        "text": {
+          "anyOf": [
+            {
+              "maxLength": 2000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Text"
+        },
+        "verdict": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Verdict"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "model",
+        "latency_ms"
+      ],
+      "title": "VlmResult",
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Something that happened on one camera. ``type`` comes from the active\nrule pack's vocabulary, so verticals can add types without schema changes.",
+  "properties": {
+    "alert_state": {
+      "$ref": "#/$defs/AlertState",
+      "default": "none"
+    },
+    "attrs": {
+      "additionalProperties": {
+        "$ref": "#/$defs/JsonValue"
+      },
+      "title": "Attrs",
+      "type": "object"
+    },
+    "camera_id": {
+      "pattern": "^[a-z0-9][a-z0-9-]{0,62}$",
+      "title": "Camera Id",
+      "type": "string"
+    },
+    "confidence": {
+      "anyOf": [
+        {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Confidence"
+    },
+    "end_ts": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "End Ts"
+    },
+    "id": {
+      "pattern": "^E-[1-9][0-9]{0,11}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "media": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/EventMedia"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "x-maigadi-local-only": true
+    },
+    "object_class": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ObjectClass"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "site_id": {
+      "pattern": "^[a-z0-9][a-z0-9-]{0,62}$",
+      "title": "Site Id",
+      "type": "string"
+    },
+    "source": {
+      "$ref": "#/$defs/EventSource"
+    },
+    "start_ts": {
+      "format": "date-time",
+      "title": "Start Ts",
+      "type": "string"
+    },
+    "track_id": {
+      "anyOf": [
+        {
+          "maxLength": 64,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Track Id"
+    },
+    "type": {
+      "pattern": "^[a-z0-9][a-z0-9_-]{0,62}$",
+      "title": "Type",
+      "type": "string"
+    },
+    "vlm": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/VlmResult"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "zone_ids": {
+      "items": {
+        "pattern": "^[a-z0-9][a-z0-9_-]{0,62}$",
+        "type": "string"
+      },
+      "maxItems": 16,
+      "title": "Zone Ids",
+      "type": "array"
+    }
+  },
+  "required": [
+    "id",
+    "site_id",
+    "camera_id",
+    "type",
+    "start_ts",
+    "source"
+  ],
+  "title": "Event",
+  "type": "object"
+}

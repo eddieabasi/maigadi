@@ -1,0 +1,325 @@
+{
+  "$defs": {
+    "ClipRef": {
+      "additionalProperties": false,
+      "description": "A clip uploaded to the transient cloud bucket after an explicit ``CLIP``\nrequest. ``request_id`` and ``requested_by`` tie it to that request.",
+      "properties": {
+        "duration_s": {
+          "exclusiveMinimum": 0,
+          "maximum": 60,
+          "title": "Duration S",
+          "type": "number"
+        },
+        "expires_at": {
+          "format": "date-time",
+          "title": "Expires At",
+          "type": "string"
+        },
+        "mime": {
+          "default": "video/mp4",
+          "pattern": "^video/mp4$",
+          "title": "Mime",
+          "type": "string"
+        },
+        "object_key": {
+          "pattern": "^clips/[A-Za-z0-9/_.=-]{1,240}$",
+          "title": "Object Key",
+          "type": "string"
+        },
+        "request_id": {
+          "maxLength": 256,
+          "minLength": 1,
+          "title": "Request Id",
+          "type": "string"
+        },
+        "requested_by": {
+          "$ref": "#/$defs/UserRef"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "size_bytes": {
+          "exclusiveMinimum": 0,
+          "maximum": 16000000,
+          "title": "Size Bytes",
+          "type": "integer"
+        },
+        "source_event_id": {
+          "anyOf": [
+            {
+              "pattern": "^E-[1-9][0-9]{0,11}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Event Id"
+        }
+      },
+      "required": [
+        "object_key",
+        "sha256",
+        "duration_s",
+        "size_bytes",
+        "request_id",
+        "requested_by",
+        "expires_at"
+      ],
+      "title": "ClipRef",
+      "type": "object"
+    },
+    "CommandName": {
+      "description": "Deterministic, user-typed commands parsed by the relay, never by the LLM\n(spec/ARCHITECTURE.md §7.1).",
+      "enum": [
+        "CLIP",
+        "MORE",
+        "MUTE",
+        "FALSE",
+        "LATE",
+        "STATUS",
+        "HELP",
+        "STOP",
+        "YES",
+        "ALLOW"
+      ],
+      "title": "CommandName",
+      "type": "string"
+    },
+    "MessageKind": {
+      "enum": [
+        "alert",
+        "summary",
+        "answer",
+        "system",
+        "clip"
+      ],
+      "title": "MessageKind",
+      "type": "string"
+    },
+    "MessageSection": {
+      "additionalProperties": false,
+      "properties": {
+        "body": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "title": "Body",
+          "type": "string"
+        },
+        "heading": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Heading"
+        }
+      },
+      "required": [
+        "body"
+      ],
+      "title": "MessageSection",
+      "type": "object"
+    },
+    "Priority": {
+      "description": "Delivery and VLM-scheduling priority (spec/ARCHITECTURE.md §3.4,\nspec/RELIABILITY.md §3.1). P0 is never shed.",
+      "enum": [
+        "P0",
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "title": "Priority",
+      "type": "string"
+    },
+    "QuickAction": {
+      "additionalProperties": false,
+      "description": "A suggested reply. Actions are structured commands, never free text, so\nmodel output can't smuggle instructions into a button.",
+      "properties": {
+        "args": {
+          "items": {
+            "pattern": "^[A-Za-z0-9:._-]{1,32}$",
+            "type": "string"
+          },
+          "maxItems": 4,
+          "title": "Args",
+          "type": "array"
+        },
+        "command": {
+          "$ref": "#/$defs/CommandName"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "maxLength": 20,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Label"
+        }
+      },
+      "required": [
+        "command"
+      ],
+      "title": "QuickAction",
+      "type": "object"
+    },
+    "UserRef": {
+      "additionalProperties": false,
+      "properties": {
+        "user_id": {
+          "pattern": "^[a-z0-9][a-z0-9-]{0,62}$",
+          "title": "User Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "user_id"
+      ],
+      "title": "UserRef",
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "actions": {
+      "items": {
+        "$ref": "#/$defs/QuickAction"
+      },
+      "maxItems": 10,
+      "title": "Actions",
+      "type": "array"
+    },
+    "citations": {
+      "items": {
+        "anyOf": [
+          {
+            "pattern": "^E-[1-9][0-9]{0,11}$",
+            "type": "string"
+          },
+          {
+            "pattern": "^C-[1-9][0-9]{0,11}$",
+            "type": "string"
+          }
+        ]
+      },
+      "maxItems": 50,
+      "title": "Citations",
+      "type": "array"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "idempotency_key": {
+      "pattern": "^[!-~]{1,200}$",
+      "title": "Idempotency Key",
+      "type": "string"
+    },
+    "in_reply_to": {
+      "anyOf": [
+        {
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "In Reply To"
+    },
+    "kind": {
+      "$ref": "#/$defs/MessageKind"
+    },
+    "media": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ClipRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "occurred_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Occurred At"
+    },
+    "priority": {
+      "$ref": "#/$defs/Priority"
+    },
+    "recipient": {
+      "$ref": "#/$defs/UserRef"
+    },
+    "sections": {
+      "items": {
+        "$ref": "#/$defs/MessageSection"
+      },
+      "maxItems": 20,
+      "title": "Sections",
+      "type": "array"
+    },
+    "site_id": {
+      "pattern": "^[a-z0-9][a-z0-9-]{0,62}$",
+      "title": "Site Id",
+      "type": "string"
+    },
+    "template_hint": {
+      "anyOf": [
+        {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,62}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Template Hint"
+    },
+    "text": {
+      "maxLength": 4096,
+      "minLength": 1,
+      "title": "Text",
+      "type": "string"
+    }
+  },
+  "required": [
+    "idempotency_key",
+    "kind",
+    "priority",
+    "site_id",
+    "recipient",
+    "created_at",
+    "text"
+  ],
+  "title": "OutboundMessage",
+  "type": "object"
+}

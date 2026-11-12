@@ -1,0 +1,17 @@
+{
+  "id": "E-9001",
+  "site_id": "ng-lag-agbara-01",
+  "camera_id": "cam-07",
+  "zone_ids": ["yard"],
+  "type": "after_hours_person",
+  "object_class": "person",
+  "track_id": "t-7-55120",
+  "start_ts": "2026-11-07T01:14:05Z",
+  "end_ts": "2026-11-07T01:14:41Z",
+  "source": "alert_bridge",
+  "confidence": 0.87,
+  "vlm": {"verdict": "confirmed", "text": "One person climbing the perimeter wall near the generator house.", "model": "cosmos3-nano-reasoner:bf16", "latency_ms": 9120},
+  "alert_state": "delivered",
+  "media": {"clip_local": "vios://clips/…", "thumb_local": "vios://snap/…"},
+  "attrs": {"armed": true, "rule_pack": "warehouse-v1@1.0.0"}
+}

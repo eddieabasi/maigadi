@@ -36,10 +36,13 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "hypothesis>=6.170.15",
     "mypy>=2.4.1",
     "pre-commit>=4.7.0",
     "pytest>=9.2.0",
+    "pyyaml>=6.0.3",
     "ruff>=0.17.4",
+    "types-pyyaml>=6.0.12.20261111",
 ]
 
 [tool.uv]
@@ -124,6 +127,7 @@ python_version = "3.13"
 strict = true
 warn_unreachable = true
 enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]
+plugins = ["pydantic.mypy"]
 files = ["shared", "edge", "cloud", "tools", "tests"]
 # Module names: src files resolve against their package's src dir; tests
 # resolve against the repo root (e.g. edge.node.tests.test_x), so two packages
@@ -150,6 +154,11 @@ mypy_path = [
     "$MYPY_CONFIG_FILE_DIR/tools/chaos/src",
     "$MYPY_CONFIG_FILE_DIR",
 ]
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
 
 # ---------------------------------------------------------------- pytest
 [tool.pytest.ini_options]

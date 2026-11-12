@@ -394,22 +394,35 @@ Per-site load model (**ASSUMPTION**):
 ```mermaid
 classDiagram
   class OutboundMessage {
-    kind: alert|summary|answer|system
+    kind: alert|summary|answer|system|clip
     priority: P0..P3
     recipient: UserRef
     site_id
     text: str
     sections: list
-    media: ClipRef?
+    media: ClipRef?, clip kind only
     actions: list~QuickAction~
+    citations: list~EventId|CaptionId~
+    occurred_at?
+    in_reply_to?
     template_hint: str?
     idempotency_key
   }
   class InboundEvent {
     channel
+    message_id
     sender_address
     text
     reply_to_message_id?
+    received_at
+  }
+  class InboxMessage {
+    message_id
+    site_id
+    user: UserRef
+    role
+    channel
+    text
     received_at
   }
   class ChannelAdapter {
@@ -440,7 +453,10 @@ classDiagram
   Router --> OutboundMessage
 ```
 
-- **The box never knows about channels.** It emits `OutboundMessage`s and consumes channel-neutral `InboundEvent`s.
+- **The box never knows about channels.** It emits `OutboundMessage`s and receives `InboxMessage`s.
+- **`InboundEvent` stays in the cloud.** It holds the sender's phone number. The relay resolves and authorises the sender, then forwards an `InboxMessage` that carries the user and role but no phone number (data minimisation).
+- **Media only on `clip` messages.** A `clip` message must reply to the user's `CLIP` request and go only to that user. Its transient cloud copy expires within 24 h. Outbound text may not contain RTSP URLs, `vios://` refs or inline image/video data. All of this is enforced by the schema (`shared/schemas`).
+- **Quick actions are structured commands** (`CLIP E-9001`), never free text.
 - **Adapters are plugins** (Python entry points, `maigadi.channels`) in the cloud relay. Adding Telegram means a new package and a template set; the core is untouched.
 - **Router policy (per user):** primary channel plus fallback. Example: a P0 alert not delivered on WhatsApp within 5 minutes falls back to SMS (v1.1). Quiet hours apply to P2/P3 only.
 - **Commands** (`CLIP`, `MUTE`, `FALSE`, `LATE`, `STATUS`, `STOP`, `HELP`) are parsed by a deterministic grammar in the relay, before the agent. They are case-insensitive and accept Pidgin aliases in v1.1.
@@ -504,7 +520,7 @@ flowchart TB
 | `up/metrics` | box→cloud | 0 | 5-min batched, zstd-compressed metrics |
 | `up/audit` | box→cloud | 1 | Audit-log segments |
 | `up/dying_gasp` | box→cloud | 1 | "Shutting down: low battery 14%" |
-| `down/inbox` | cloud→box | 1 | `InboundEvent` (questions) |
+| `down/inbox` | cloud→box | 1 | `InboxMessage` (questions; resolved user + role, no phone number) |
 | `down/acks` | cloud→box | 1 | Delivery and read receipts |
 | shadow `config` | both | – | Desired / reported config version |
 | jobs `ota` | cloud→box | – | Release rollout jobs |
@@ -531,7 +547,14 @@ flowchart TB
 }
 ```
 
-`media.*` references are **local only**. They are never sent to the cloud. The egress filter drops them.
+`media.*` references are **local only**. They are never sent to the cloud.
+
+- **Enforcement:** the field carries the JSON Schema marker `x-maigadi-local-only`. `cloud_dump()` in `shared/schemas` drops every marked field at any nesting level, and the egress filter uses it.
+- **Where the models live:** pydantic models are in `shared/schemas`. Generated JSON Schema is in `shared/schemas/json/`; regenerate with `uv run maigadi-schemas`.
+- **Model rules:**
+  - Timestamps are timezone-aware and normalised to UTC; naive ones are rejected.
+  - Unknown fields are rejected.
+  - `type` is a rule-pack vocabulary slug, so new verticals don't need schema changes.
 
 ## 10. Compute and memory budget (Thor T5000, 128 GB unified)
 

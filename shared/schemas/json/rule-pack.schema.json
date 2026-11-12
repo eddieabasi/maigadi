@@ -1,0 +1,325 @@
+{
+  "$defs": {
+    "AlertCategory": {
+      "enum": [
+        "security",
+        "logistics",
+        "camera_health",
+        "staff_presence"
+      ],
+      "title": "AlertCategory",
+      "type": "string"
+    },
+    "AlertType": {
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "$ref": "#/$defs/AlertCategory"
+        },
+        "deliver": {
+          "title": "Deliver",
+          "type": "boolean"
+        },
+        "name": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,62}$",
+          "title": "Name",
+          "type": "string"
+        },
+        "severity": {
+          "$ref": "#/$defs/Severity"
+        },
+        "unverified_policy": {
+          "$ref": "#/$defs/UnverifiedPolicy",
+          "default": "hold"
+        },
+        "verify_with_vlm": {
+          "title": "Verify With Vlm",
+          "type": "boolean"
+        },
+        "vlm_prompt": {
+          "anyOf": [
+            {
+              "maxLength": 2000,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Vlm Prompt"
+        }
+      },
+      "required": [
+        "name",
+        "category",
+        "severity",
+        "deliver",
+        "verify_with_vlm"
+      ],
+      "title": "AlertType",
+      "type": "object"
+    },
+    "ArmCondition": {
+      "enum": [
+        "armed",
+        "always"
+      ],
+      "title": "ArmCondition",
+      "type": "string"
+    },
+    "CameraHealth": {
+      "additionalProperties": false,
+      "properties": {
+        "offline_alert_after_armed_s": {
+          "default": 600,
+          "exclusiveMinimum": 0,
+          "title": "Offline Alert After Armed S",
+          "type": "integer"
+        },
+        "offline_alert_after_unarmed_s": {
+          "default": 7200,
+          "exclusiveMinimum": 0,
+          "title": "Offline Alert After Unarmed S",
+          "type": "integer"
+        }
+      },
+      "title": "CameraHealth",
+      "type": "object"
+    },
+    "GateDefaults": {
+      "additionalProperties": false,
+      "description": "Rules-gate defaults (spec/ARCHITECTURE.md §3.3).",
+      "properties": {
+        "bay_dwell_alert_after_s": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bay Dwell Alert After S"
+        },
+        "cooldown_s": {
+          "default": 300,
+          "exclusiveMinimum": 0,
+          "title": "Cooldown S",
+          "type": "integer"
+        },
+        "min_dwell_s": {
+          "default": 3.0,
+          "minimum": 0,
+          "title": "Min Dwell S",
+          "type": "number"
+        },
+        "nightly_alert_budget": {
+          "default": 10,
+          "exclusiveMinimum": 0,
+          "title": "Nightly Alert Budget",
+          "type": "integer"
+        }
+      },
+      "title": "GateDefaults",
+      "type": "object"
+    },
+    "ObjectClass": {
+      "description": "Object classes the box tracks (spec/ARCHITECTURE.md §3.2). Never identities.",
+      "enum": [
+        "person",
+        "car",
+        "truck",
+        "bus",
+        "motorcycle",
+        "bicycle"
+      ],
+      "title": "ObjectClass",
+      "type": "string"
+    },
+    "Rule": {
+      "additionalProperties": false,
+      "properties": {
+        "emits": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,62}$",
+          "title": "Emits",
+          "type": "string"
+        },
+        "min_dwell_s": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min Dwell S"
+        },
+        "name": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,62}$",
+          "title": "Name",
+          "type": "string"
+        },
+        "object_classes": {
+          "items": {
+            "$ref": "#/$defs/ObjectClass"
+          },
+          "title": "Object Classes",
+          "type": "array"
+        },
+        "trigger": {
+          "$ref": "#/$defs/Trigger"
+        },
+        "when": {
+          "$ref": "#/$defs/ArmCondition"
+        },
+        "zone_templates": {
+          "items": {
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,62}$",
+            "type": "string"
+          },
+          "title": "Zone Templates",
+          "type": "array"
+        }
+      },
+      "required": [
+        "name",
+        "trigger",
+        "when",
+        "emits"
+      ],
+      "title": "Rule",
+      "type": "object"
+    },
+    "Severity": {
+      "enum": [
+        "high",
+        "normal",
+        "info"
+      ],
+      "title": "Severity",
+      "type": "string"
+    },
+    "Trigger": {
+      "enum": [
+        "roi_enter",
+        "roi_exit",
+        "tripwire_cross",
+        "dwell",
+        "restricted_area",
+        "camera_offline",
+        "camera_tamper"
+      ],
+      "title": "Trigger",
+      "type": "string"
+    },
+    "UnverifiedPolicy": {
+      "description": "What to do when VLM verification fails (timeout or error).",
+      "enum": [
+        "hold",
+        "send_as_unverified"
+      ],
+      "title": "UnverifiedPolicy",
+      "type": "string"
+    },
+    "ZoneTemplate": {
+      "additionalProperties": false,
+      "properties": {
+        "default_group": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z0-9][a-z0-9_-]{0,62}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Default Group"
+        },
+        "default_name": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Default Name",
+          "type": "string"
+        },
+        "template": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,62}$",
+          "title": "Template",
+          "type": "string"
+        }
+      },
+      "required": [
+        "template",
+        "default_name"
+      ],
+      "title": "ZoneTemplate",
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "alert_types": {
+      "items": {
+        "$ref": "#/$defs/AlertType"
+      },
+      "minItems": 1,
+      "title": "Alert Types",
+      "type": "array"
+    },
+    "camera_health": {
+      "$ref": "#/$defs/CameraHealth"
+    },
+    "description": {
+      "maxLength": 500,
+      "minLength": 1,
+      "title": "Description",
+      "type": "string"
+    },
+    "gate": {
+      "$ref": "#/$defs/GateDefaults"
+    },
+    "id": {
+      "pattern": "^[a-z0-9][a-z0-9-]{0,62}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "rules": {
+      "items": {
+        "$ref": "#/$defs/Rule"
+      },
+      "minItems": 1,
+      "title": "Rules",
+      "type": "array"
+    },
+    "version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "title": "Version",
+      "type": "string"
+    },
+    "zone_templates": {
+      "items": {
+        "$ref": "#/$defs/ZoneTemplate"
+      },
+      "title": "Zone Templates",
+      "type": "array"
+    }
+  },
+  "required": [
+    "id",
+    "version",
+    "description",
+    "alert_types",
+    "rules"
+  ],
+  "title": "RulePack",
+  "type": "object"
+}

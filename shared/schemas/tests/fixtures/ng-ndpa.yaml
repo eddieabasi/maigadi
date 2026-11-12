@@ -1,0 +1,39 @@
+# Verbatim copy of the example in spec/SECURITY_AND_PRIVACY.md §B4.
+id: ng-ndpa
+version: 1.0.0
+jurisdiction: NG
+legal_review: pending            # blocks GA until 'approved' ⚖️
+features:
+  face_recognition: forbidden
+  person_reid: forbidden
+  plate_recognition: forbidden
+  audio: forbidden
+  emotion_or_behaviour_scoring: forbidden
+  staff_presence_rules: allowed_opt_in   # e.g. "guard post unattended"
+llm:
+  allowed_modes: [hybrid, sovereign]
+  inference_geo: any            # ⚖️ cross-border basis required
+  provider_zdr_required: true
+retention:
+  continuous_recording_days: 7
+  event_clips_days: 30
+  events_and_captions_days: 90
+  conversations_days: 30
+  audit_days: 730
+clip_egress:
+  roles: [owner, manager]
+  require_pin: true
+  max_seconds: 20
+  max_per_user_per_day: 10
+  watermark: true
+signage:
+  template: ng-signage-v1
+  languages: [en]               # v1.1: pcm, ha, yo, ig
+  photo_required: true
+commissioning_requirements:
+  dpia: recommended
+  lia: required
+  staff_notice: required
+dsar:
+  response_days: 30             # ASSUMPTION ⚖️
+  third_party_blur: true

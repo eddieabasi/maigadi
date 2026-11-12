@@ -1,0 +1,71 @@
+{
+  "$defs": {
+    "CameraState": {
+      "enum": [
+        "online",
+        "offline",
+        "degraded",
+        "blocked"
+      ],
+      "title": "CameraState",
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One camera's state over an interval. ``end_ts=None`` means ongoing.",
+  "properties": {
+    "camera_id": {
+      "pattern": "^[a-z0-9][a-z0-9-]{0,62}$",
+      "title": "Camera Id",
+      "type": "string"
+    },
+    "end_ts": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "End Ts"
+    },
+    "reason": {
+      "anyOf": [
+        {
+          "maxLength": 200,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Reason"
+    },
+    "site_id": {
+      "pattern": "^[a-z0-9][a-z0-9-]{0,62}$",
+      "title": "Site Id",
+      "type": "string"
+    },
+    "start_ts": {
+      "format": "date-time",
+      "title": "Start Ts",
+      "type": "string"
+    },
+    "state": {
+      "$ref": "#/$defs/CameraState"
+    }
+  },
+  "required": [
+    "site_id",
+    "camera_id",
+    "state",
+    "start_ts"
+  ],
+  "title": "Coverage",
+  "type": "object"
+}
